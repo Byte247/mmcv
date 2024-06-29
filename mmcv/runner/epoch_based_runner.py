@@ -22,6 +22,12 @@ class EpochBasedRunner(BaseRunner):
     """
 
     def run_iter(self, data_batch, train_mode, **kwargs):
+
+        for name, param in self.model.named_parameters():
+            if torch.isnan(param).any():
+                print(f"NaN detected in weights of {name}, replacing with zero.")
+                param.data = torch.zeros_like(param.data)
+
         if self.batch_processor is not None:
             outputs = self.batch_processor(
                 self.model, data_batch, train_mode=train_mode, **kwargs)
